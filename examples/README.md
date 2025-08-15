@@ -1,9 +1,91 @@
 # Examples
 
-This directory contains examples that are mostly used for documentation, but can also be run/tested manually via the Terraform CLI.
+This directory contains various examples for using the Terraform Kind provider.
 
-The document generation tool looks for files in the following locations by default. All other *.tf files besides the ones mentioned below are ignored by the documentation tool. This is useful for creating examples that can run and/or are testable even if some parts are not relevant for the documentation.
+## Basic Example
 
-* **provider/provider.tf** example file for the provider index page
-* **data-sources/`full data source name`/data-source.tf** example file for the named data source page
-* **resources/`full resource name`/resource.tf** example file for the named data source page
+The `basic/` directory contains a simple example that creates a single-node Kind cluster with inline configuration.
+
+```bash
+cd basic
+terraform init
+terraform plan
+terraform apply
+```
+
+## With Config File Example
+
+The `with-config-file/` directory demonstrates how to use an external `kind-config.yaml` file to configure your cluster.
+
+```bash
+cd with-config-file
+terraform init
+terraform plan
+terraform apply
+```
+
+## Multi-Node Example
+
+The `multi-node/` directory shows how to create a multi-node cluster with custom networking configuration and multiple clusters.
+
+```bash
+cd multi-node
+terraform init
+terraform plan
+terraform apply
+```
+
+## Common Configuration Options
+
+### Port Mappings
+
+To expose services running in your Kind cluster to your host machine:
+
+```yaml
+extraPortMappings:
+- containerPort: 80
+  hostPort: 80
+  protocol: TCP
+- containerPort: 443
+  hostPort: 443
+  protocol: TCP
+```
+
+### Node Labels
+
+To add labels to nodes for scheduling purposes:
+
+```yaml
+kubeadmConfigPatches:
+- |
+  kind: InitConfiguration
+  nodeRegistration:
+    kubeletExtraArgs:
+      node-labels: "ingress-ready=true"
+```
+
+### Custom Node Images
+
+To use a specific Kubernetes version:
+
+```hcl
+resource "kind_cluster" "example" {
+  name       = "my-cluster"
+  node_image = "kindest/node:v1.28.0"
+  # ... other configuration
+}
+```
+
+## Cleanup
+
+To destroy the clusters created by these examples:
+
+```bash
+terraform destroy
+```
+
+Or manually using Kind:
+
+```bash
+kind delete cluster --name <cluster-name>
+```

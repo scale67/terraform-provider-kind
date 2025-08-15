@@ -1,64 +1,151 @@
-# Terraform Provider Scaffolding (Terraform Plugin Framework)
+# Terraform Kind Provider
 
-_This template repository is built on the [Terraform Plugin Framework](https://github.com/hashicorp/terraform-plugin-framework). The template repository built on the [Terraform Plugin SDK](https://github.com/hashicorp/terraform-plugin-sdk) can be found at [terraform-provider-scaffolding](https://github.com/hashicorp/terraform-provider-scaffolding). See [Which SDK Should I Use?](https://developer.hashicorp.com/terraform/plugin/framework-benefits) in the Terraform documentation for additional information._
+This Terraform provider allows you to manage Kubernetes Kind (Kubernetes in Docker) clusters using Terraform.
 
-This repository is a *template* for a [Terraform](https://www.terraform.io) provider. It is intended as a starting point for creating Terraform providers, containing:
+## Features
 
-- A resource and a data source (`internal/provider/`),
-- Examples (`examples/`) and generated documentation (`docs/`),
-- Miscellaneous meta files.
-
-These files contain boilerplate code that you will need to edit to create your own Terraform provider. Tutorials for creating Terraform providers can be found on the [HashiCorp Developer](https://developer.hashicorp.com/terraform/tutorials/providers-plugin-framework) platform. _Terraform Plugin Framework specific guides are titled accordingly._
-
-Please see the [GitHub template repository documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template) for how to create a new repository from this template on GitHub.
-
-Once you've written your provider, you'll want to [publish it on the Terraform Registry](https://developer.hashicorp.com/terraform/registry/providers/publishing) so that others can use it.
+- Create and manage Kind clusters
+- Support for custom Kind configuration files (`kind-config.yaml`)
+- Inline Kind configuration support
+- Automatic cluster cleanup on destroy
+- Kubeconfig and endpoint outputs
+- Support for custom node images
+- Wait for cluster readiness option
 
 ## Requirements
 
-- [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.0
-- [Go](https://golang.org/doc/install) >= 1.23
+- [Terraform](https://www.terraform.io/downloads.html) >= 1.0
+- [Go](https://golang.org/doc/install) >= 1.21 (for development)
+- [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) >= 0.20.0
+- [Docker](https://docs.docker.com/get-docker/) or Podman
 
-## Building The Provider
+## Installation
+
+### Using the Provider
+
+```hcl
+terraform {
+  required_providers {
+    kind = {
+      source = "gtm-cloud-ai/kind"
+      version = "~> 1.0"
+    }
+  }
+}
+
+provider "kind" {}
+```
+
+### Building from Source
 
 1. Clone the repository
-1. Enter the repository directory
-1. Build the provider using the Go `install` command:
+2. Build and install the provider:
 
-```shell
-go install
+```bash
+make install
 ```
 
-## Adding Dependencies
+## Usage
 
-This provider uses [Go modules](https://github.com/golang/go/wiki/Modules).
-Please see the Go documentation for the most up to date information about using Go modules.
+### Basic Example
 
-To add a new dependency `github.com/author/dependency` to your Terraform provider:
+```hcl
+resource "kind_cluster" "example" {
+  name           = "my-cluster"
+  wait_for_ready = true
 
-```shell
-go get github.com/author/dependency
-go mod tidy
+  kind_config = <<YAML
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "ingress-ready=true"
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: 80
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 443
+    protocol: TCP
+YAML
+}
+
+output "kubeconfig" {
+  value = kind_cluster.example.kubeconfig
+  sensitive = true
+}
 ```
 
-Then commit the changes to `go.mod` and `go.sum`.
+### Using External Configuration File
 
-## Using the provider
-
-Fill this in for each provider
-
-## Developing the Provider
-
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (see [Requirements](#requirements) above).
-
-To compile the provider, run `go install`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
-
-To generate or update documentation, run `make generate`.
-
-In order to run the full suite of Acceptance tests, run `make testacc`.
-
-*Note:* Acceptance tests create real resources, and often cost money to run.
-
-```shell
-make testacc
+```hcl
+resource "kind_cluster" "example" {
+  name           = "my-cluster"
+  config_path    = "${path.module}/kind-config.yaml"
+  wait_for_ready = true
+  node_image     = "kindest/node:v1.28.0"
+}
 ```
+
+## Resource: `kind_cluster`
+
+### Arguments
+
+- `name` (Required, String) - Name of the Kind cluster. Changing this forces a new resource to be created.
+- `kind_config` (Optional, String) - Inline Kind configuration YAML. Conflicts with `config_path`.
+- `config_path` (Optional, String) - Path to Kind configuration YAML file. Conflicts with `kind_config`.
+- `node_image` (Optional, String) - Node Docker image to use for booting the cluster.
+- `wait_for_ready` (Optional, Boolean) - Wait for the cluster to be ready before completing.
+
+### Attributes
+
+- `id` (String) - The cluster identifier.
+- `kubeconfig` (String, Sensitive) - Kubeconfig for the created cluster.
+- `endpoint` (String) - Kubernetes API server endpoint.
+
+## Examples
+
+Check the `examples/` directory for more comprehensive examples:
+
+- `examples/basic/` - Basic cluster with inline configuration
+- `examples/with-config-file/` - Cluster using external configuration file
+- `examples/multi-node/` - Multi-node cluster with custom networking
+
+## Development
+
+### Building the Provider
+
+```bash
+go build -o terraform-provider-kind
+```
+
+### Testing
+
+```bash
+make test
+```
+
+### Installing for Local Development
+
+```bash
+make install
+```
+
+This will build and install the provider in your local Terraform plugins directory.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
+
+## License
+
+This project is licensed under the Mozilla Public License v2.0 - see the LICENSE file for details.# gtm-infra-kind-provider
