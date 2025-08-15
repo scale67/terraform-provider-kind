@@ -40,7 +40,7 @@ func main() {
 		// provider address is used in these tutorials in conjunction with a
 		// specific Terraform CLI configuration for manual development testing
 		// of this provider.
-		Address: "registry.terraform.io/gtm-cloud-ai/kind",
+		Address: "registry.terraform.io/gtm-cloud-ai/terraform-provider-gtm-kind",
 		Debug:   debug,
 	}
 
