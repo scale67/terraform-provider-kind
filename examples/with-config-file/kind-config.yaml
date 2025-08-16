@@ -20,4 +20,6 @@ nodes:
     hostPort: 6443
     protocol: TCP
 - role: worker
+  labels:
+    tier: ai
 - role: worker
