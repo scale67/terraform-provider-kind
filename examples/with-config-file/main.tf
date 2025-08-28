@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     kind = {
-      source = "gtm-cloud-ai/kind"
+      source = "scale67/kind"
       version = "~> 1.0"
     }
   }

@@ -5,7 +5,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/gtm-cloud-ai/terraform-provider-gtm-kind/internal/provider"
+	"github.com/scale67/terraform-provider-gtm-kind/internal/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
 
@@ -40,7 +40,7 @@ func main() {
 		// provider address is used in these tutorials in conjunction with a
 		// specific Terraform CLI configuration for manual development testing
 		// of this provider.
-		Address: "registry.terraform.io/gtm-cloud-ai/terraform-provider-gtm-kind",
+		Address: "registry.terraform.io/scale67/terraform-provider-gtm-kind",
 		Debug:   debug,
 	}
 

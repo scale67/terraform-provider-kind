@@ -1,4 +1,4 @@
-module github.com/gtm-cloud-ai/terraform-provider-gtm-kind
+module github.com/scale67/terraform-provider-gtm-kind
 
 go 1.23.7
 
