@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     kind = {
-      source = "scale67/kind"
+      source  = "scale67/kind"
       version = "~> 1.0"
     }
   }
@@ -69,7 +69,7 @@ YAML
 
 # Output configurations for both clusters
 output "multi_node_kubeconfig" {
-  value = kind_cluster.multi_node.kubeconfig
+  value     = kind_cluster.multi_node.kubeconfig
   sensitive = true
 }
 
@@ -78,7 +78,7 @@ output "multi_node_endpoint" {
 }
 
 output "test_kubeconfig" {
-  value = kind_cluster.test.kubeconfig
+  value     = kind_cluster.test.kubeconfig
   sensitive = true
 }
 

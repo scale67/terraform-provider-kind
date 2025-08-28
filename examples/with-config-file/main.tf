@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     kind = {
-      source = "scale67/kind"
+      source  = "scale67/kind"
       version = "~> 1.0"
     }
   }
@@ -19,7 +19,7 @@ resource "kind_cluster" "example" {
 
 # Output the kubeconfig
 output "kubeconfig" {
-  value = kind_cluster.example.kubeconfig
+  value     = kind_cluster.example.kubeconfig
   sensitive = true
 }
 
