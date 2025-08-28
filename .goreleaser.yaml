@@ -60,7 +60,8 @@ archives:
         mode: 0755
 
 checksum:
-  name_template: 'checksums.txt'
+  name_template: 'SHA256SUMS.sig'
+
   algorithm: sha256
 
 changelog:
