@@ -25,6 +25,12 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
+            # Add Terraform setup step
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.5.0"
+          terraform_wrapper: false
       - name: Build and Test
         run: |
           go build -o terraform-provider-kind ./main.go
