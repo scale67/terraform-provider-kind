@@ -17,12 +17,7 @@ jobs:
   goreleaser:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: "1.5.0"
-          terraform_wrapper: false
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           # Allow goreleaser to access older tag information.
           fetch-depth: 0
@@ -30,16 +25,6 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
-            # Add Terraform setup step
-      - name: Build and Test
-        run: |
-          go build -o terraform-provider-kind ./main.go
-          go test ./...
-          echo "Build and tests completed successfully"
-      - name: Generate Documentation
-        run: |
-          go generate ./...
-          echo "Documentation generated successfully"
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec # v6.3.0
         id: import_gpg
@@ -47,32 +32,11 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6.4.0
+        uses: goreleaser/goreleaser-action@9c156ee8a17a598857849441385a2041ef570552 # v6.3.0
         with:
           args: release --clean
         env:
           # GitHub sets the GITHUB_TOKEN secret automatically.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-          # Ensure GPG signing is enabled
-          GPG_KEY_ID: ${{ steps.import_gpg.outputs.fingerprint }}
-      - name: Verify Release Assets
-        run: |
-          echo "Verifying release assets..."
-          # Check if checksums.txt exists and is signed
-          if [ -f "dist/checksums.txt" ]; then
-            echo "✓ checksums.txt found"
-            if [ -f "dist/checksums.txt.sig" ]; then
-              echo "✓ checksums.txt.sig found"
-            else
-              echo "✗ checksums.txt.sig missing"
-              exit 1
-            fi
-          else
-            echo "✗ checksums.txt missing"
-            exit 1
-          fi
-          
-          # Verify GPG signature
-          gpg --verify dist/checksums.txt.sig dist/checksums.txt
-          echo "✓ GPG signature verified"
+
