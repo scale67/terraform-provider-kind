@@ -27,7 +27,8 @@ builds:
       - arm64
       - 386
     ignore:
-      - goos == "darwin" && goarch == "386"
+      - goos: darwin
+        goarch: "386"
     binary: terraform-provider-kind_{{.Version}}
     main: ./main.go
     # Ensure consistent naming for Terraform provider
@@ -54,10 +55,6 @@ archives:
       - terraform-provider-kind_{{.Version}}*
       - README.md
       - LICENSE
-    # Ensure proper file permissions
-    file_info:
-      - path: terraform-provider-kind_{{.Version}}*
-        mode: 0755
 
 checksum:
   name_template: 'SHA256SUMS.sig'
