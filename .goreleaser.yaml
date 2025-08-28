@@ -22,6 +22,18 @@ builds:
       - linux
       - windows
       - darwin
+    goarch:
+      - amd64
+      - arm64
+      - 386
+    ignore:
+      - goos == "darwin" && goarch == "386"
+    binary: terraform-provider-kind_{{.Version}}
+    main: ./main.go
+    # Ensure consistent naming for Terraform provider
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
 
 archives:
   - formats: [tar.gz]
@@ -37,6 +49,19 @@ archives:
     format_overrides:
       - goos: windows
         formats: [zip]
+    # Include the binary and any other necessary files
+    files:
+      - terraform-provider-kind_{{.Version}}*
+      - README.md
+      - LICENSE
+    # Ensure proper file permissions
+    file_info:
+      - path: terraform-provider-kind_{{.Version}}*
+        mode: 0755
+
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
 
 changelog:
   sort: asc
