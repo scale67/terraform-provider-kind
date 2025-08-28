@@ -57,7 +57,7 @@ archives:
       - LICENSE
 
 checksum:
-  name_template: 'SHA256SUMS.sig'
+  name_template: 'terraform-provider-kind_{{.Version}}_SHA256SUMS.sig'
 
   algorithm: sha256
 
