@@ -11,7 +11,7 @@ provider "kind" {}
 
 # Multi-node Kind cluster with custom networking
 resource "kind_cluster" "multi_node" {
-  name           = "multi-node-cluster"
+  name           = "multi-node-scale67-cluster"
   wait_for_ready = true
 
   kind_config = <<YAML
@@ -40,11 +40,11 @@ nodes:
   extraPortMappings:
   # expose ingress controller port mappings
   - containerPort: 80
-    hostPort: 80
+    hostPort: 81
     listenAddress: "0.0.0.0"
     protocol: TCP
   - containerPort: 443
-    hostPort: 443
+    hostPort: 3443
     listenAddress: "0.0.0.0"
     protocol: TCP
 # the worker nodes

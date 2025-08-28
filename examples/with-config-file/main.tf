@@ -11,7 +11,7 @@ provider "kind" {}
 
 # Kind cluster using external configuration file
 resource "kind_cluster" "example" {
-  name           = "config-file-cluster"
+  name           = "scale-67-config-file-cluster"
   config_path    = "${path.module}/kind-config.yaml"
   wait_for_ready = true
   node_image     = "kindest/node:v1.28.0"

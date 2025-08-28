@@ -11,7 +11,7 @@ provider "kind" {}
 
 # Basic Kind cluster with inline configuration
 resource "kind_cluster" "example" {
-  name           = "example-cluster"
+  name           = "scale67-cluster"
   wait_for_ready = true
 
   kind_config = <<YAML
