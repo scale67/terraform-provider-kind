@@ -149,3 +149,4 @@ This will build and install the provider in your local Terraform plugins directo
 ## License
 
 This project is licensed under the Mozilla Public License v2.0 - see the LICENSE file for details.# gtm-infra-kind-provider
+v0.0.1
