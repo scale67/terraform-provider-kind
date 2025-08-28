@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     kind = {
-      source = "scale67/terraform-provider-gtm-kind"
+      source = "scale67/kind"
       version = "~> 1.0"
     }
   }

@@ -5,8 +5,8 @@ import (
 	"flag"
 	"log"
 
-	"github.com/scale67/terraform-provider-gtm-kind/internal/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"github.com/scale67/kind/internal/provider"
 )
 
 // Run "go generate" to format example terraform files and generate the docs for the registry/website
@@ -40,7 +40,7 @@ func main() {
 		// provider address is used in these tutorials in conjunction with a
 		// specific Terraform CLI configuration for manual development testing
 		// of this provider.
-		Address: "registry.terraform.io/scale67/terraform-provider-gtm-kind",
+		Address: "registry.terraform.io/scale67/kind",
 		Debug:   debug,
 	}
 

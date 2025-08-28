@@ -1,4 +1,4 @@
-module github.com/scale67/terraform-provider-gtm-kind
+module github.com/scale67/kind
 
 go 1.23.7
 
