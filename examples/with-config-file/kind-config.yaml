@@ -1,6 +1,6 @@
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
-name: config-file-cluster
+name: scale-67-config-file-cluster
 nodes:
 - role: control-plane
   kubeadmConfigPatches:
@@ -15,9 +15,6 @@ nodes:
     protocol: TCP
   - containerPort: 443
     hostPort: 443
-    protocol: TCP
-  - containerPort: 6443
-    hostPort: 6443
     protocol: TCP
 - role: worker
   labels:

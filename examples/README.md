@@ -76,6 +76,47 @@ resource "kind_cluster" "example" {
 }
 ```
 
+## Using kubectl with Your Cluster
+
+After creating a cluster with Terraform, you can use kubectl to interact with it. The provider automatically configures kubectl for you.
+
+### Troubleshooting kubectl Access
+
+If you encounter issues with kubectl commands after creating a cluster, the most common causes are:
+
+1. **TLS Certificate Issues**: Avoid mapping port 6443 (Kubernetes API server) to `0.0.0.0` in your kind config, as this can cause TLS certificate validation errors.
+
+2. **Name Mismatch**: Ensure the cluster name in your Terraform configuration matches the name in your `kind-config.yaml` file.
+
+### Helper Script
+
+The `with-config-file/` example includes a helper script `use-cluster.sh` that you can run to easily set up kubectl access:
+
+```bash
+cd with-config-file
+./use-cluster.sh
+```
+
+This script:
+- Extracts the kubeconfig from Terraform output
+- Sets the `KUBECONFIG` environment variable
+- Provides instructions for permanent setup
+
+### Manual Setup
+
+Alternatively, you can manually set up kubectl access:
+
+```bash
+# Get the kubeconfig content
+terraform output -raw kubeconfig > kubeconfig.yaml
+
+# Use the kubeconfig
+export KUBECONFIG=./kubeconfig.yaml
+
+# Or merge with your existing config
+kubectl config view --flatten > ~/.kube/config
+```
+
 ## Cleanup
 
 To destroy the clusters created by these examples:
