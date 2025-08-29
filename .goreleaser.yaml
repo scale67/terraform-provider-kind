@@ -1,5 +1,8 @@
 # This is an example goreleaser.yaml file with some sane defaults.
 # Make sure to check the documentation at http://goreleaser.com
+
+version: 2
+
 before:
   hooks:
     # You may remove this if you don't use go modules.
@@ -9,7 +12,6 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
-    mod_timestamp: '{{ .CommitTimestamp }}'
     flags:
       - -trimpath
     ldflags:
@@ -22,7 +24,7 @@ builds:
       - amd64
       - arm64
 archives:
-  - format: zip
+  - formats: [zip]
     name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
 checksum:
   name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
@@ -39,8 +41,12 @@ signs:
       - "${signature}"
       - "--detach-sign"
       - "${artifact}"
+metadata:
+  mod_timestamp: '{{ .CommitTimestamp }}'
+
 release:
   # Visit your project's GitHub Releases page to publish this release.
   draft: false
+  
 changelog:
-  skip: true
+  disable: true
