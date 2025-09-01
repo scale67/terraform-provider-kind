@@ -1,28 +1,109 @@
-🔥 Ready to build something cool with Kubernetes and Terraform? The [Scale67 Kind provider](https://registry.terraform.io/providers/scale67/kind/latest) is your gateway to spinning up lightweight Kubernetes clusters using [Kind (Kubernetes IN Docker)](https://kind.sigs.k8s.io/)—perfect for testing, development, and CI/CD pipelines.
+# Terraform Kind Provider
 
-### Why You’d Use the Scale67 Kind Provider
+The [Scale67 Kind provider](https://registry.terraform.io/providers/scale67/kind/latest) allows you to manage Kubernetes Kind (Kubernetes in Docker) clusters using Terraform. This provider is perfect for local development, testing, and CI/CD pipelines where you need lightweight, ephemeral Kubernetes clusters.
 
-Here’s how it can supercharge your workflow:
+## Features
 
-- **Local Kubernetes Clusters**: Instantly create and manage Kubernetes clusters inside Docker containers—no cloud account needed.
-- **Infrastructure as Code**: Define your cluster setup in Terraform, making it reproducible, version-controlled, and easy to share.
-- **CI/CD Friendly**: Ideal for automated testing environments where you need ephemeral clusters that spin up fast and tear down cleanly.
-- **Multi-node Support**: Simulate real-world cluster topologies with multiple nodes for more robust testing.
-- **Custom Configs**: Inject custom Kind configurations, like networking tweaks or volume mounts, directly from your Terraform code.
+- **Create and manage Kind clusters** - Spin up and tear down Kubernetes clusters with a single resource
+- **Support for custom Kind configuration files** - Use external `kind-config.yaml` files for complex cluster setups
+- **Inline Kind configuration support** - Define cluster configuration directly in your Terraform code
+- **Automatic cluster cleanup** - Clusters are automatically destroyed when the Terraform resource is removed
+- **Kubeconfig and endpoint outputs** - Get immediate access to cluster connection details
+- **Support for custom node images** - Use specific Kubernetes versions for your clusters
+- **Wait for cluster readiness** - Ensure clusters are fully ready before proceeding
 
-### Example Use Case
+## Requirements
 
-Imagine you're building a microservices app and want to test how it behaves in a Kubernetes cluster before deploying to production. With this provider, you can:
+- [Terraform](https://www.terraform.io/downloads.html) >= 1.0
+- [Go](https://golang.org/doc/install) >= 1.21 (for development)
+- [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) >= 0.20.0
+- [Docker](https://docs.docker.com/get-docker/) or Podman
+
+## Installation
+
+### Using the Provider
 
 ```hcl
-resource "kind_cluster" "dev" {
-  name = "dev-cluster"
-  config = file("${path.module}/kind-config.yaml")
+terraform {
+  required_providers {
+    kind = {
+      source = "scale67/kind"
+      version = "~> 0.0.1"
+    }
+  }
+}
+
+provider "kind" {}
+```
+
+### Building from Source
+
+1. Clone the repository
+2. Build and install the provider:
+
+```bash
+make install
+```
+
+## Quick Start
+
+### Basic Example
+
+```hcl
+resource "kind_cluster" "example" {
+  name           = "my-cluster"
+  wait_for_ready = true
+
+  kind_config = <<YAML
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "ingress-ready=true"
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: 80
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 443
+    protocol: TCP
+YAML
+}
+
+output "kubeconfig" {
+  value = kind_cluster.example.kubeconfig
+  sensitive = true
 }
 ```
 
-Boom—your cluster is up and running locally, ready for Helm charts, manifests, or whatever magic you’re cooking.
+### Using External Configuration File
 
----
+```hcl
+resource "kind_cluster" "example" {
+  name           = "my-cluster"
+  config_path    = "${path.module}/kind-config.yaml"
+  wait_for_ready = true
+  node_image     = "kindest/node:v1.28.0"
+}
+```
 
-If you're serious about DevOps or just want to experiment with Kubernetes without the cloud overhead, this provider is a game-changer. Want help writing a full Terraform module with it? Let’s build it together.
+## Use Cases
+
+- **Local Development**: Create isolated Kubernetes environments for testing applications
+- **CI/CD Pipelines**: Spin up ephemeral clusters for automated testing
+- **Learning Kubernetes**: Experiment with Kubernetes features without cloud costs
+- **Multi-node Testing**: Test applications across different cluster topologies
+- **Integration Testing**: Validate Helm charts and Kubernetes manifests
+
+## Examples
+
+Check the `examples/` directory for comprehensive examples:
+
+- `examples/basic/` - Basic cluster with inline configuration
+- `examples/with-config-file/` - Cluster using external configuration file
+- `examples/multi-node/` - Multi-node cluster with custom networking
