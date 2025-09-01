@@ -45,6 +45,226 @@ provider "kind" {}
 make install
 ```
 
+## Provider Configuration
+
+The Kind provider is designed to be simple and requires minimal configuration. Here are various ways to configure and use the provider:
+
+### Basic Provider Configuration
+
+```hcl
+terraform {
+  required_providers {
+    kind = {
+      source = "scale67/kind"
+      version = "~> 0.0.1"
+    }
+  }
+}
+
+provider "kind" {}
+
+resource "kind_cluster" "basic" {
+  name = "basic-cluster"
+  # ... cluster configuration
+}
+```
+
+### Provider with Version Constraints
+
+```hcl
+terraform {
+  required_providers {
+    kind = {
+      source  = "scale67/kind"
+      version = ">= 0.0.1, < 1.0.0"
+    }
+  }
+}
+
+provider "kind" {}
+```
+
+### Multiple Provider Instances
+
+```hcl
+terraform {
+  required_providers {
+    kind = {
+      source = "scale67/kind"
+      version = "~> 0.0.1"
+    }
+  }
+}
+
+# Development cluster
+provider "kind" {
+  alias = "dev"
+}
+
+# Staging cluster
+provider "kind" {
+  alias = "staging"
+}
+
+# Development cluster
+resource "kind_cluster" "dev" {
+  provider = kind.dev
+  name     = "dev-cluster"
+  # ... configuration
+}
+
+# Staging cluster
+resource "kind_cluster" "staging" {
+  provider = kind.staging
+  name     = "staging-cluster"
+  # ... configuration
+}
+```
+
+### Provider in Modules
+
+```hcl
+# main.tf
+terraform {
+  required_providers {
+    kind = {
+      source = "scale67/kind"
+      version = "~> 0.0.1"
+    }
+  }
+}
+
+provider "kind" {}
+
+module "development" {
+  source = "./modules/kind-cluster"
+  
+  providers = {
+    kind = kind
+  }
+  
+  cluster_name = "dev-cluster"
+  node_count   = 1
+}
+
+# modules/kind-cluster/main.tf
+terraform {
+  required_providers {
+    kind = {
+      source = "scale67/kind"
+      version = "~> 0.0.1"
+    }
+  }
+}
+
+resource "kind_cluster" "cluster" {
+  name = var.cluster_name
+  
+  kind_config = yamlencode({
+    kind       = "Cluster"
+    apiVersion = "kind.x-k8s.io/v1alpha4"
+    nodes = [
+      for i in range(var.node_count) : {
+        role = i == 0 ? "control-plane" : "worker"
+      }
+    ]
+  })
+}
+```
+
+### Provider with Environment Variables
+
+```hcl
+terraform {
+  required_providers {
+    kind = {
+      source = "scale67/kind"
+      version = "~> 0.0.1"
+    }
+  }
+}
+
+provider "kind" {}
+
+# Use environment variables for dynamic configuration
+resource "kind_cluster" "env_cluster" {
+  name = var.cluster_name != "" ? var.cluster_name : "default-cluster"
+  
+  kind_config = var.kind_config != "" ? var.kind_config : yamlencode({
+    kind       = "Cluster"
+    apiVersion = "kind.x-k8s.io/v1alpha4"
+    nodes = [
+      {
+        role = "control-plane"
+      }
+    ]
+  })
+}
+
+# variables.tf
+variable "cluster_name" {
+  description = "Name of the Kind cluster"
+  type        = string
+  default     = ""
+}
+
+variable "kind_config" {
+  description = "Kind configuration YAML"
+  type        = string
+  default     = ""
+}
+```
+
+### Provider in Workspaces
+
+```hcl
+terraform {
+  required_providers {
+    kind = {
+      source = "scale67/kind"
+      version = "~> 0.0.1"
+    }
+  }
+}
+
+provider "kind" {}
+
+locals {
+  workspace_configs = {
+    dev = {
+      node_count = 1
+      node_image = "kindest/node:v1.28.0"
+    }
+    staging = {
+      node_count = 3
+      node_image = "kindest/node:v1.29.0"
+    }
+    prod = {
+      node_count = 5
+      node_image = "kindest/node:v1.30.0"
+    }
+  }
+  
+  config = local.workspace_configs[terraform.workspace]
+}
+
+resource "kind_cluster" "workspace_cluster" {
+  name = "${terraform.workspace}-cluster"
+  
+  kind_config = yamlencode({
+    kind       = "Cluster"
+    apiVersion = "kind.x-k8s.io/v1alpha4"
+    nodes = [
+      for i in range(local.config.node_count) : {
+        role = i == 0 ? "control-plane" : "worker"
+      }
+    ]
+  })
+  
+  node_image = local.config.node_image
+}
+```
+
 ## Quick Start
 
 ### Basic Example
