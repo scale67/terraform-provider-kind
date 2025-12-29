@@ -2,7 +2,7 @@ terraform {
   required_providers {
     kind = {
       source  = "scale67/kind"
-      version = "> 0.0.1"
+      version = ">= 0.0.1"
     }
   }
 }
